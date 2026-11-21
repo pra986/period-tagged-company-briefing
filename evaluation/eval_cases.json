@@ -1,0 +1,83 @@
+{
+  "project": "period-tagged-company-briefing",
+  "cases": [
+    {
+      "id": "eval_01_ambiguous_entity",
+      "description": "Reject ambiguous company name without legal ticker or legal ID",
+      "input": {
+        "entity_query": "Apple",
+        "ticker": null,
+        "legal_id": null
+      },
+      "expected_error": "DisambiguationError"
+    },
+    {
+      "id": "eval_02_missing_unit",
+      "description": "Reject numerical metric missing currency or unit",
+      "input": {
+        "entity_query": "Apple Inc.",
+        "ticker": "AAPL",
+        "legal_id": "CIK:0000320193",
+        "metrics": [
+          {
+            "metric_name": "Total Revenue",
+            "value": 391.04,
+            "unit": "",
+            "fiscal_period": "FY2024",
+            "source_url": "https://sec.gov/example"
+          }
+        ]
+      },
+      "expected_error": "MetricValidationError"
+    },
+    {
+      "id": "eval_03_missing_fiscal_period",
+      "description": "Reject numerical metric missing fiscal period tag",
+      "input": {
+        "entity_query": "Apple Inc.",
+        "ticker": "AAPL",
+        "legal_id": "CIK:0000320193",
+        "metrics": [
+          {
+            "metric_name": "Total Revenue",
+            "value": 391.04,
+            "unit": "USD billions",
+            "fiscal_period": "",
+            "source_url": "https://sec.gov/example"
+          }
+        ]
+      },
+      "expected_error": "MetricValidationError"
+    },
+    {
+      "id": "eval_04_valid_briefing_parity",
+      "description": "Produce separated [FACT] and [INTERPRETATION] sections with exact numeric parity",
+      "input": {
+        "entity_query": "Apple Inc.",
+        "ticker": "AAPL",
+        "legal_id": "CIK:0000320193",
+        "metrics": [
+          {
+            "metric_name": "Total Revenue",
+            "value": 391.04,
+            "unit": "USD billions",
+            "fiscal_period": "FY2024",
+            "source_url": "https://sec.gov/example"
+          }
+        ],
+        "statements": [
+          {
+            "statement_type": "FACT",
+            "text": "Total Revenue was 391.04 USD billions in FY2024.",
+            "source_url": "https://sec.gov/example"
+          },
+          {
+            "statement_type": "INTERPRETATION",
+            "text": "Services mix continues to anchor top-line resilience."
+          }
+        ]
+      },
+      "expected_audit_passed": true
+    }
+  ]
+}
